@@ -2536,6 +2536,7 @@ dependencies = [
  "tracing-subscriber",
  "url 2.2.2",
  "websocket",
+ "winapi 0.3.9",
 ]
 
 [[package]]

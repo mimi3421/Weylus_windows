@@ -38,9 +38,9 @@ fn main() {
     let mut tsc_command = Command::new("tsc");
 
     #[cfg(target_os = "windows")]
-    let mut tsc_command = Command::new("bash");
-    #[cfg(target_os = "windows")]
-    tsc_command.arg("tsc");
+    let mut tsc_command = Command::new("tsc.cmd");
+    // #[cfg(target_os = "windows")]
+    // tsc_command.arg("tsc");
 
     match tsc_command.status() {
         Err(err) => {

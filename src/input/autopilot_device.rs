@@ -3,6 +3,9 @@ use autopilot::mouse;
 use autopilot::mouse::ScrollDirection;
 use autopilot::screen::size as screen_size;
 
+use winapi::shared::windef::{HWND, POINT};
+use winapi::um::winuser::*;
+
 use tracing::warn;
 
 use crate::input::device::{InputDevice, InputDeviceType};
@@ -12,11 +15,13 @@ use crate::capturable::Capturable;
 
 pub struct AutoPilotDevice {
     capturable: Box<dyn Capturable>,
+    syntheticPointerDeviceHandle: *mut HSYNTHETICPOINTERDEVICE__,
 }
 
 impl AutoPilotDevice {
     pub fn new(capturable: Box<dyn Capturable>) -> Self {
-        Self { capturable }
+        self.capturable = capturable;
+        self.syntheticPointerDeviceHandle = unsafe { CreateSyntheticPointerDevice(PT_PEN, 1, 1) }
     }
 }
 
@@ -53,24 +58,61 @@ impl InputDevice for AutoPilotDevice {
                 return;
             }
         };
-        if let Err(err) = mouse::move_to(autopilot::geometry::Point::new(
-            (event.x * width_rel + x_rel) * width,
-            (event.y * height_rel + y_rel) * height,
-        )) {
-            warn!("Could not move mouse: {}", err);
+        let x = (event.x * width_rel + x_rel) * width;
+        let y = (event.y * height_rel + y_rel) * height;
+        unsafe {
+            let mut pointerTypeInfo = POINTER_TYPE_INFO {
+                type_: PT_PEN,
+                u: std::mem::zeroed(),
+            };
+            *pointerTypeInfo.u.pen_info_mut() = POINTER_PEN_INFO {
+                pointerInfo: POINTER_INFO {
+                    pointerType: PT_PEN,
+                    pointerId: event.pointer_id,
+                    frameId: 0,
+                    pointerFlags: POINTER_FLAG_INRANGE
+                        | POINTER_FLAG_INCONTACT
+                        //| POINTER_FLAG_FIRSTBUTTON
+                        | POINTER_FLAG_PRIMARY,
+                    sourceDevice: 0 as *mut winapi::ctypes::c_void,
+                    hwndTarget: 0 as HWND,
+                    ptPixelLocation: POINT { x: x, y: y },
+                    ptHimetricLocation: POINT { x: 0, y: 0 },
+                    ptPixelLocationRaw: POINT { x: x, y: y },
+                    ptHimetricLocationRaw: POINT { x: 0, y: 0 },
+                    dwTime: 0,
+                    historyCount: 1,
+                    InputData: 0,
+                    dwKeyStates: 0,
+                    PerformanceCount: 0,
+                    ButtonChangeType: POINTER_CHANGE_NONE,
+                },
+                penFlags: PEN_FLAG_NONE,
+                penMask: PEN_MASK_PRESSURE | PEN_MASK_ROTATION | PEN_MASK_TILT_X | PEN_MASK_TILT_Y,
+                pressure: event.pressure,
+                rotation: 0,
+                tiltX: 0,
+                tiltY: 0,
+            };
         }
-        match event.button {
-            Button::PRIMARY => {
-                mouse::toggle(mouse::Button::Left, event.buttons.contains(event.button))
-            }
-            Button::AUXILARY => {
-                mouse::toggle(mouse::Button::Middle, event.buttons.contains(event.button))
-            }
-            Button::SECONDARY => {
-                mouse::toggle(mouse::Button::Right, event.buttons.contains(event.button))
-            }
-            _ => (),
-        }
+        // if let Err(err) = mouse::move_to(autopilot::geometry::Point::new(
+        //     (event.x * width_rel + x_rel) * width,
+        //     (event.y * height_rel + y_rel) * height,
+        // )) {
+        //     warn!("Could not move mouse: {}", err);
+        // }
+        // match event.button {
+        //     Button::PRIMARY => {
+        //         mouse::toggle(mouse::Button::Left, event.buttons.contains(event.button))
+        //     }
+        //     Button::AUXILARY => {
+        //         mouse::toggle(mouse::Button::Middle, event.buttons.contains(event.button))
+        //     }
+        //     Button::SECONDARY => {
+        //         mouse::toggle(mouse::Button::Right, event.buttons.contains(event.button))
+        //     }
+        //     _ => (),
+        // }
     }
 
     fn send_keyboard_event(&mut self, event: &KeyboardEvent) {

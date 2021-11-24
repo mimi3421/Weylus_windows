@@ -849,7 +849,7 @@ function init(access_code: string, websocket_port: number) {
     let video = document.getElementById("video") as HTMLVideoElement;
     let canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
-    video.oncontextmenu = function(event) {
+    video.oncontextmenu = function (event) {
         event.preventDefault();
         event.stopPropagation();
         return false;
@@ -904,7 +904,7 @@ function init(access_code: string, websocket_port: number) {
         (window_names) => settings.onCapturableList(window_names)
     );
     window.onunload = () => { webSocket.close(); }
-    webSocket.onopen = function(event) {
+    webSocket.onopen = function (event) {
         if (access_code)
             webSocket.send(access_code);
         authed = true;
