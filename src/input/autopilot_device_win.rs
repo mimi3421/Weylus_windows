@@ -28,6 +28,7 @@ impl WindowsInput {
                 autopilot_device: AutoPilotDevice::new(capturable),
                 pointer_device_handle: CreateSyntheticPointerDevice(PT_PEN, 1, 1),
                 touch_device_handle: CreateSyntheticPointerDevice(PT_TOUCH, 5, 1),
+                is_using_pen_or_touching: 0, // Ignore mouse event when using pen or touching _csT
             }
         }
     }
@@ -84,6 +85,14 @@ impl InputDevice for WindowsInput {
                         type_: PT_PEN,
                         u: std::mem::zeroed(),
                     };
+                    
+                    //// Announce using pen _csT
+                    if pointer_flags & POINTER_FLAG_CANCELED >0 || pointer_flags & POINTER_FLAG_UP >0 {
+                        self.is_using_pen_or_touching = 0;
+                    }else{
+                        self.is_using_pen_or_touching = 1;
+                    }
+                    
                     *pointer_type_info.u.penInfo_mut() = POINTER_PEN_INFO {
                         pointerInfo: POINTER_INFO {
                             pointerType: PT_PEN,
@@ -123,7 +132,14 @@ impl InputDevice for WindowsInput {
                         type_: PT_TOUCH,
                         u: std::mem::zeroed(),
                     };
-
+                    
+                    //// Announce using touch _csT
+                    if pointer_flags & POINTER_FLAG_CANCELED >0 || pointer_flags & POINTER_FLAG_UP >0 {
+                        self.is_using_pen_or_touching = 0;
+                    }else{
+                        self.is_using_pen_or_touching = 1;
+                    }
+                    
                     let mut pointer_touch_info: POINTER_TOUCH_INFO = std::mem::zeroed();
                     pointer_touch_info.pointerInfo = std::mem::zeroed();
                     pointer_touch_info.pointerInfo.pointerType = PT_TOUCH;
@@ -181,7 +197,9 @@ impl InputDevice for WindowsInput {
                         dw_flags |= MOUSEEVENTF_LEFTUP;
                     }
                 }
-                unsafe { mouse_event(dw_flags, 0 as u32, 0 as u32, 0, 0) };
+                if self.is_using_pen_or_touching == 0 {
+                    unsafe { mouse_event(dw_flags, 0 as u32, 0 as u32, 0, 0) };
+                }
             }
             PointerType::Unknown => todo!(),
         }
