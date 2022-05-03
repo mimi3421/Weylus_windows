@@ -151,7 +151,7 @@ impl InputDevice for WindowsInput {
                     pointer_touch_info.touchMask = TOUCH_MASK_PRESSURE;
                     pointer_touch_info.pressure = (event.pressure * 1024f64) as u32;
 
-                    pointer_touch_info.pointerInfo.ButtonChangeType = button_change_type;,
+                    pointer_touch_info.pointerInfo.ButtonChangeType = button_change_type;
                     //pointer_touch_info.pointerInfo.ButtonChangeType = POINTER_CHANGE_NONE; // No button event when using pen or touch _csT
 
                     *pointer_type_info.u.touchInfo_mut() = pointer_touch_info;
