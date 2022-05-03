@@ -510,7 +510,8 @@ impl WsHandler {
                 d.set_capturable(capturable.clone());
             }
 
-            #[cfg(not(target_os = "linux"))]
+            //////////#[cfg(not(target_os = "linux"))]//////_cst
+            #[cfg(target_os = "macos")]
             if self.input_device.is_none() {
                 self.input_device = Some(Box::new(
                     crate::input::autopilot_device::AutoPilotDevice::new(capturable.clone()),

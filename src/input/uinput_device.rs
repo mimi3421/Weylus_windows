@@ -285,7 +285,8 @@ impl InputDevice for UInputDevice {
         }
         let (x, y, width, height) = match geometry.unwrap() {
             Geometry::Relative(x, y, width, height) => (x, y, width, height),
-            _ => unreachable!(),
+            ////_ => unreachable!(),////_csT force a default value
+            _ => (0.0, 0.0, 1.0, 1.0),
         };
         self.x = x;
         self.y = y;

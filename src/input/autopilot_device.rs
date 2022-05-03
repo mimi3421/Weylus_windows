@@ -44,7 +44,8 @@ impl InputDevice for AutoPilotDevice {
         }
         let (x_rel, y_rel, width_rel, height_rel) = match geometry.unwrap() {
             Geometry::Relative(x, y, width, height) => (x, y, width, height),
-            _ => unreachable!(),
+            ////_ => unreachable!(),////_csT force a default value
+            _ => (0.0, 0.0, 1.0, 1.0),
         };
         #[cfg(not(target_os = "macos"))]
         let Size { width, height } = screen_size();
