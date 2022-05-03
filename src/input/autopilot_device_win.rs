@@ -17,6 +17,7 @@ pub struct WindowsInput {
     autopilot_device: AutoPilotDevice,
     pointer_device_handle: *mut HSYNTHETICPOINTERDEVICE__,
     touch_device_handle: *mut HSYNTHETICPOINTERDEVICE__,
+    is_using_pen_or_touching: u32,
 }
 
 impl WindowsInput {
