@@ -269,7 +269,8 @@ fn handle_video(receiver: mpsc::Receiver<VideoCommands>, sender: WsWriter, confi
                 }
                 let pixel_data = recorder.as_mut().unwrap().capture();
                 if let Err(err) = pixel_data {
-                    warn!("Error capturing screen: {}", err);
+                    //// no need to export warning when losing frame _csT
+                    //warn!("Error capturing screen: {}", err);
                     continue;
                 }
                 let pixel_data = pixel_data.unwrap();
