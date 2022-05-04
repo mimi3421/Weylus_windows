@@ -204,7 +204,6 @@ impl InputDevice for WindowsInput {
                         dw_flags |= MOUSEEVENTF_LEFTUP;
                     }
                 }
-                warn!("Triggered button event");
                 if self.is_using_pen_or_touching == 0 {
                     unsafe { mouse_event(dw_flags, 0 as u32, 0 as u32, 0, 0) };
                 }
