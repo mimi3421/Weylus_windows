@@ -111,8 +111,8 @@ impl InputDevice for WindowsInput {
                             InputData: 0,
                             dwKeyStates: 0,
                             PerformanceCount: 0,
-                            ButtonChangeType: button_change_type,
-                            //ButtonChangeType: POINTER_CHANGE_NONE, // No button event when using pen or touch _csT
+                            //ButtonChangeType: button_change_type,
+                            ButtonChangeType: POINTER_CHANGE_NONE, // No button event when using pen or touch _csT
                         },
                         penFlags: PEN_FLAG_NONE,
                         penMask: PEN_MASK_PRESSURE
