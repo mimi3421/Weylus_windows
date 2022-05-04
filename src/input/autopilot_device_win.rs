@@ -57,13 +57,19 @@ impl InputDevice for WindowsInput {
             (event.y * height as f64) as i32 + offset_y,
         );
         let mut pointer_flags = match event.event_type {
+            //https://github.com/gsbischoff/usb-pen-injection/blob/master/PenClient.c
+            //https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-pointer_info
+            //https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-pointer_pen_info
+            //https://docs.microsoft.com/en-us/windows/win32/api/winuser/ne-winuser-pointer_button_change_type
             PointerEventType::DOWN => {
                 POINTER_FLAG_INRANGE | POINTER_FLAG_INCONTACT | POINTER_FLAG_DOWN
             }
             PointerEventType::MOVE => POINTER_FLAG_INRANGE | POINTER_FLAG_UPDATE,
-            PointerEventType::UP => POINTER_FLAG_UP,
+            //PointerEventType::UP => POINTER_FLAG_UP,
+            PointerEventType::UP => POINTER_FLAG_INRANGE | POINTER_FLAG_UP,
             PointerEventType::CANCEL => {
-                POINTER_FLAG_INRANGE | POINTER_FLAG_UPDATE | POINTER_FLAG_CANCELED
+                //POINTER_FLAG_INRANGE | POINTER_FLAG_UPDATE | POINTER_FLAG_CANCELED
+                POINTER_FLAG_UPDATE | POINTER_FLAG_CANCELED
             }
         };
         let button_change_type = match event.buttons {
@@ -198,6 +204,7 @@ impl InputDevice for WindowsInput {
                         dw_flags |= MOUSEEVENTF_LEFTUP;
                     }
                 }
+                warn!("Triggered button event");
                 if self.is_using_pen_or_touching == 0 {
                     unsafe { mouse_event(dw_flags, 0 as u32, 0 as u32, 0, 0) };
                 }
